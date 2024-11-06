@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hero_world"
+version = "0.1.0"
+dependencies = [
+    "pygame",
+]
+
+[project.scripts]
+hw = "hero_world.game:game"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = "src"
+
+[tool.setuptools.package-data]
+hero_world = ["world.json"]
