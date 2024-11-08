@@ -1,14 +1,29 @@
+from enum import Enum
+from pathlib import Path
 import pygame
+
+import pygame_gui
 import json
 
 from hero_world.buildings import Building, Forge
 from hero_world.land import Land
+from hero_world.ui import UI
 
 TILE_SIZE = 64
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 
+ASSET_ROOT = Path(Path(__file__).absolute().parent / "assets")
 DEBUG = False
+
+
+class Buildings(Enum):
+    FORGE = Forge
+
+
+class Modes(Enum):
+    NONE = None
+    BUILD = "build"
 
 
 class World:
@@ -52,7 +67,7 @@ class World:
     def _add_land(self, x, y, neighbors) -> None:
         position = (y * TILE_SIZE, x * TILE_SIZE)
         self.land_positions.append(position)
-        self.land.append(Land(position, neighbors, TILE_SIZE))
+        self.land.append(Land(position, neighbors, TILE_SIZE, ASSET_ROOT))
 
     def add_building(self, building: Building) -> None:
         building_pos = (building.pos[0], building.pos[1])
@@ -81,6 +96,37 @@ class TownGame:
         self.running = True
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         self.world = World(self.screen, world)
+        self.mode = Modes.NONE
+        self.building = Buildings.FORGE
+        self.manager = pygame_gui.UIManager(
+            (WINDOW_WIDTH, WINDOW_HEIGHT),
+            theme_path=Path(Path(__file__).absolute().parent / "theme.default.json"),
+        )
+        self.ui = UI(ASSET_ROOT, self.manager)
+        self.draw_ui()
+
+    def draw_ui(self) -> None:
+        self.ui.add_button(
+            "#btn_forge_toggle",
+            "",
+            self.build,
+            Buildings.FORGE,
+        )
+        self.ui.add_button(
+            "#btn_quit",
+            "Quit",
+            self.quit,
+        )
+
+    def build(self, building: Buildings):
+        if self.mode != Modes.BUILD:
+            self.mode = Modes.BUILD
+            self.building = building
+        else:
+            self.mode = Modes.NONE
+
+    def quit(self):
+        self.running = False
 
     def main(self) -> None:
         while self.running:
@@ -88,28 +134,42 @@ class TownGame:
         pygame.quit()
 
     def loop(self) -> None:
+        time_delta = self.clock.tick(60) / 1000.0  # limits FPS to 60
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
             elif event.type == pygame.KEYUP:
                 if event.key in (pygame.K_ESCAPE, pygame.K_q):
                     self.running = False
-            elif event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP and self.mode == Modes.BUILD:
                 pos = pygame.mouse.get_pos()
-                self.world.add_building(Forge(pos, TILE_SIZE))
+                self.world.add_building(self.building.value(pos, TILE_SIZE, ASSET_ROOT))
+            elif event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if any(
+                    x.endswith("toggle")
+                    for x in event.ui_element.object_ids
+                    if isinstance(x, str)
+                ):
+                    if self.mode == Modes.NONE:
+                        event.ui_element.select()
+                    else:
+                        event.ui_element.unselect()
+                self.ui.button_clicked(event.ui_element)
+            self.manager.process_events(event)
+
+        self.manager.update(time_delta)
 
         # self.screen.fill("#aaeebb")  # nice pygame-website-green
         self.screen.fill("#3498db")  # nice kenney-preview-blue
         self.world.draw()
+        self.manager.draw_ui(self.screen)
 
         # flip() the display to put your work on screen
         pygame.display.flip()
 
-        self.clock.tick(60)  # limits FPS to 60
-
 
 def game():
-    with open("world.json", "r") as fp:
+    with open(Path(Path(__file__).absolute().parent / "world.json"), "r") as fp:
         world = json.load(fp)
     town_game = TownGame(world)
     town_game.main()
