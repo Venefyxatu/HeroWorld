@@ -1,8 +1,9 @@
 from pathlib import Path
 import pygame
+from enum import Enum
 
 
-class LandTiles:
+class LandTiles(Enum):
     grass_top = "ground/grass_top.png"
     grass_top_left = "ground/grass_top_left.png"
     grass_top_right = "ground/grass_top_right.png"
@@ -79,4 +80,4 @@ class Land:
 
         else:
             land_type = LandTiles.grass_field
-        screen.blit(pygame.image.load(self.asset_root / land_type), self.pos)
+        screen.blit(pygame.image.load(self.asset_root / land_type.value), self.pos)
