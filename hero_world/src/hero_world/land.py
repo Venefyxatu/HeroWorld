@@ -2,6 +2,8 @@ from pathlib import Path
 import pygame
 from enum import Enum
 
+from hero_world.constants import NeighborSlots
+
 
 class LandTiles(Enum):
     grass_top = "ground/grass_top.png"
@@ -22,59 +24,86 @@ class LandTiles(Enum):
 class Land:
     def __init__(self, pos, neighbors, tile_size, asset_root: Path) -> None:
         """
-        neighbors: tl, t, tr, l, r, bl, b, br, 1 for land, 0 for nothing
+        neighbors: 1 for land, 0 for nothing
         """
-        x = tile_size * (pos[0] // tile_size)
-        y = tile_size * (pos[1] // tile_size)
-        self.pos = (x, y)
+        row = tile_size * (pos[0])
+        col = tile_size * (pos[1])
+        self.pos = (col, row)
+        # self.pos = pos
         self.neighbors = neighbors
         self.asset_root = asset_root
 
     def draw(self, screen: pygame.surface.Surface) -> None:
-        if self.neighbors[0] == 0 and self.neighbors[1] == 0 and self.neighbors[3] == 0:
+        if (
+            self.neighbors[NeighborSlots.TOP_LEFT] == 0
+            and self.neighbors[NeighborSlots.TOP] == 0
+            and self.neighbors[NeighborSlots.LEFT] == 0
+        ):
             land_type = LandTiles.grass_top_left
         elif (
-            self.neighbors[1] == 0 and self.neighbors[3] == 1 and self.neighbors[4] == 1
+            self.neighbors[NeighborSlots.TOP] == 0
+            and self.neighbors[NeighborSlots.LEFT] == 1
+            and self.neighbors[NeighborSlots.RIGHT] == 1
         ):
             land_type = LandTiles.grass_top
         elif (
-            self.neighbors[1] == 0 and self.neighbors[2] == 0 and self.neighbors[4] == 0
+            self.neighbors[NeighborSlots.TOP] == 0
+            and self.neighbors[NeighborSlots.TOP_RIGHT] == 0
+            and self.neighbors[NeighborSlots.RIGHT] == 0
         ):
             land_type = LandTiles.grass_top_right
         elif (
-            self.neighbors[3] == 0 and self.neighbors[1] == 1 and self.neighbors[6] == 1
+            self.neighbors[NeighborSlots.LEFT] == 0
+            and self.neighbors[NeighborSlots.TOP] == 1
+            and self.neighbors[NeighborSlots.BOTTOM] == 1
         ):
             land_type = LandTiles.grass_left
         elif (
-            self.neighbors[4] == 0 and self.neighbors[1] == 1 and self.neighbors[6] == 1
+            self.neighbors[NeighborSlots.RIGHT] == 0
+            and self.neighbors[NeighborSlots.TOP] == 1
+            and self.neighbors[NeighborSlots.BOTTOM] == 1
         ):
             land_type = LandTiles.grass_right
         elif (
-            self.neighbors[3] == 0 and self.neighbors[5] == 0 and self.neighbors[6] == 0
+            self.neighbors[NeighborSlots.LEFT] == 0
+            and self.neighbors[NeighborSlots.BOTTOM_LEFT] == 0
+            and self.neighbors[NeighborSlots.BOTTOM] == 0
         ):
             land_type = LandTiles.grass_bottom_left
         elif (
-            self.neighbors[6] == 0 and self.neighbors[3] == 1 and self.neighbors[4] == 1
+            self.neighbors[NeighborSlots.BOTTOM] == 0
+            and self.neighbors[NeighborSlots.LEFT] == 1
+            and self.neighbors[NeighborSlots.RIGHT] == 1
         ):
             land_type = LandTiles.grass_bottom
         elif (
-            self.neighbors[4] == 0 and self.neighbors[6] == 0 and self.neighbors[7] == 0
+            self.neighbors[NeighborSlots.RIGHT] == 0
+            and self.neighbors[NeighborSlots.BOTTOM] == 0
+            and self.neighbors[NeighborSlots.BOTTOM_RIGHT] == 0
         ):
             land_type = LandTiles.grass_bottom_right
         elif (
-            self.neighbors[1] == 1 and self.neighbors[3] == 1 and self.neighbors[0] == 0
+            self.neighbors[NeighborSlots.TOP] == 1
+            and self.neighbors[NeighborSlots.LEFT] == 1
+            and self.neighbors[NeighborSlots.TOP_LEFT] == 0
         ):
             land_type = LandTiles.grass_inner_tl
         elif (
-            self.neighbors[1] == 1 and self.neighbors[4] == 1 and self.neighbors[2] == 0
+            self.neighbors[NeighborSlots.TOP] == 1
+            and self.neighbors[NeighborSlots.RIGHT] == 1
+            and self.neighbors[NeighborSlots.TOP_RIGHT] == 0
         ):
             land_type = LandTiles.grass_inner_tr
         elif (
-            self.neighbors[3] == 1 and self.neighbors[6] == 1 and self.neighbors[5] == 0
+            self.neighbors[NeighborSlots.LEFT] == 1
+            and self.neighbors[NeighborSlots.BOTTOM] == 1
+            and self.neighbors[NeighborSlots.BOTTOM_LEFT] == 0
         ):
             land_type = LandTiles.grass_inner_bl
         elif (
-            self.neighbors[4] == 1 and self.neighbors[6] == 1 and self.neighbors[7] == 0
+            self.neighbors[NeighborSlots.RIGHT] == 1
+            and self.neighbors[NeighborSlots.BOTTOM] == 1
+            and self.neighbors[NeighborSlots.BOTTOM_RIGHT] == 0
         ):
             land_type = LandTiles.grass_inner_br
 
