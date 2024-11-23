@@ -7,6 +7,8 @@ from hero_world.constants import (
     ASSET_ROOT,
     DEBUG,
     NeighborSlots,
+    NON_EDGE_LAND,
+    LandTiles,
 )
 
 
@@ -17,8 +19,7 @@ class World:
         self.world = world
         self.columns = len(world[0])
         self.rows = len(world)
-        self.land_positions = []
-        self.land = []
+        self.land = {}
         self._create_land()
 
     def _get_neighboring_structures(self, row_index, col_index):
@@ -65,16 +66,19 @@ class World:
                 if self.world[row_index][col_index] == 1:
                     neighbors = self._get_neighbors(row_index, col_index)
                     self._add_land(row_index, col_index, neighbors)
+        for land in self.land.values():
+            land.choose_type()
 
     def _add_land(self, row, col, neighbors) -> None:
         position = (row, col)
-        self.land_positions.append(position)
-        self.land.append(Land(position, neighbors, TILE_SIZE, ASSET_ROOT))
+        self.land[position] = Land(position, neighbors, TILE_SIZE, ASSET_ROOT)
 
     def add_building(self, building: Building) -> bool:
         building_pos = (building.pos[0], building.pos[1])
-        if building_pos not in self.buildings and building_pos in self.land_positions:
+        if building_pos not in self.buildings and building_pos in self.land.keys():
             self.buildings[building_pos] = building
+            if self.land[building_pos].land_type in NON_EDGE_LAND:
+                self.land[building_pos].land_type = LandTiles.grass_field
             return True
         return False
 
@@ -91,7 +95,7 @@ class World:
                         (40, 40, 40),
                         (col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE),
                     )
-        for land in self.land:
+        for land in self.land.values():
             land.draw(self.screen)
         for position, building in self.buildings.items():
             neighbors = self._get_neighboring_structures(position[0], position[1])

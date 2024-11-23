@@ -5,7 +5,7 @@ import pygame
 import pygame_gui
 import json
 
-from hero_world.buildings import Forge, Road
+from hero_world.buildings import Forge, Road, WoodCutter
 from hero_world.player import Player
 from hero_world.ui import UI
 from hero_world.world import World
@@ -22,8 +22,7 @@ class Buildings(Enum):
     ROAD_VERT = {"class": Road, "cost": 1, "kwargs": {"direction": "vert"}}
     ROAD_HOR = {"class": Road, "cost": 1, "kwargs": {"direction": "hor"}}
     ROAD_4WAY = {"class": Road, "cost": 1}
-    ROAD_T_DOWN = {"class": Road, "cost": 1}
-    ROAD_T_UP = {"class": Road, "cost": 1}
+    WOODCUTTER = {"class": WoodCutter, "cost": 2}
 
 
 class Modes(Enum):
@@ -55,6 +54,12 @@ class TownGame:
             "",
             self.build,
             Buildings.FORGE,
+        )
+        self.ui.add_button(
+            "#btn_woodcutter_toggle",
+            "",
+            self.build,
+            Buildings.WOODCUTTER,
         )
         self.ui.add_button(
             "#btn_road_h_toggle",

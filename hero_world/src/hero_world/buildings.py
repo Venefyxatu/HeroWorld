@@ -28,6 +28,11 @@ class Building:
         screen.blit(self._load_image(), self._draw_pos())
 
 
+class WoodCutter(Building):
+    def _load_image(self) -> pygame.surface.Surface:
+        return pygame.image.load(self.asset_root / "structures/woodcutter.png")
+
+
 class Forge(Building):
     def _load_image(self) -> pygame.surface.Surface:
         return pygame.image.load(self.asset_root / "structures/forge.png")

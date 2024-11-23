@@ -21,6 +21,18 @@
             }
         }
     },
+    "#btn_woodcutter_toggle": {
+        "images": {
+            "normal_image": {
+                "package": "hero_world.assets.buttons",
+                "resource": "woodcutter.png"
+            },
+            "selected_image": {
+                "package": "hero_world.assets.buttons",
+                "resource": "woodcutter.png"
+            }
+        }
+    },
     "#btn_road_h_toggle": {
         "images": {
             "normal_image": {
