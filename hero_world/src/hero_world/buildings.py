@@ -44,6 +44,62 @@ class Road(Building):
             self.direction = "4way"
         elif all(x is False for x in self.neighbors.values()):
             self.direction = self.intention
+        elif (
+            self.neighbors[NeighborSlots.LEFT]
+            and self.neighbors[NeighborSlots.RIGHT]
+            and self.neighbors[NeighborSlots.BOTTOM]
+            and not self.neighbors[NeighborSlots.TOP]
+        ):
+            self.direction = "t_down"
+        elif (
+            self.neighbors[NeighborSlots.LEFT]
+            and self.neighbors[NeighborSlots.RIGHT]
+            and self.neighbors[NeighborSlots.TOP]
+            and not self.neighbors[NeighborSlots.BOTTOM]
+        ):
+            self.direction = "t_up"
+        elif (
+            self.neighbors[NeighborSlots.LEFT]
+            and self.neighbors[NeighborSlots.BOTTOM]
+            and self.neighbors[NeighborSlots.TOP]
+            and not self.neighbors[NeighborSlots.RIGHT]
+        ):
+            self.direction = "t_left"
+        elif (
+            self.neighbors[NeighborSlots.RIGHT]
+            and self.neighbors[NeighborSlots.BOTTOM]
+            and self.neighbors[NeighborSlots.TOP]
+            and not self.neighbors[NeighborSlots.LEFT]
+        ):
+            self.direction = "t_right"
+        elif (
+            self.neighbors[NeighborSlots.LEFT]
+            and self.neighbors[NeighborSlots.BOTTOM]
+            and not self.neighbors[NeighborSlots.RIGHT]
+            and not self.neighbors[NeighborSlots.TOP]
+        ):
+            self.direction = "c_up_left"
+        elif (
+            self.neighbors[NeighborSlots.RIGHT]
+            and self.neighbors[NeighborSlots.BOTTOM]
+            and not self.neighbors[NeighborSlots.LEFT]
+            and not self.neighbors[NeighborSlots.TOP]
+        ):
+            self.direction = "c_up_right"
+        elif (
+            self.neighbors[NeighborSlots.LEFT]
+            and self.neighbors[NeighborSlots.TOP]
+            and not self.neighbors[NeighborSlots.RIGHT]
+            and not self.neighbors[NeighborSlots.BOTTOM]
+        ):
+            self.direction = "c_down_left"
+        elif (
+            self.neighbors[NeighborSlots.RIGHT]
+            and self.neighbors[NeighborSlots.TOP]
+            and not self.neighbors[NeighborSlots.LEFT]
+            and not self.neighbors[NeighborSlots.BOTTOM]
+        ):
+            self.direction = "c_down_right"
         elif self.intention == "vert":
             if (
                 self.neighbors[NeighborSlots.LEFT]
