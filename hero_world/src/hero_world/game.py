@@ -18,11 +18,11 @@ from hero_world.constants import (
 
 
 class Buildings(Enum):
-    FORGE = {"class": Forge, "cost": 5}
-    ROAD_VERT = {"class": Road, "cost": 1, "kwargs": {"direction": "vert"}}
-    ROAD_HOR = {"class": Road, "cost": 1, "kwargs": {"direction": "hor"}}
-    ROAD_4WAY = {"class": Road, "cost": 1}
-    WOODCUTTER = {"class": WoodCutter, "cost": 2}
+    FORGE = {"class": Forge}
+    ROAD_VERT = {"class": Road, "kwargs": {"direction": "vert"}}
+    ROAD_HOR = {"class": Road, "kwargs": {"direction": "hor"}}
+    ROAD_4WAY = {"class": Road}
+    WOODCUTTER = {"class": WoodCutter}
 
 
 class Modes(Enum):
@@ -52,30 +52,35 @@ class TownGame:
         self.ui.add_button(
             "#btn_forge_toggle",
             "",
+            "Forge",
             self.build,
             Buildings.FORGE,
         )
         self.ui.add_button(
             "#btn_woodcutter_toggle",
             "",
+            "Woodcutter",
             self.build,
             Buildings.WOODCUTTER,
         )
         self.ui.add_button(
             "#btn_road_h_toggle",
             "",
+            "Road east-west",
             self.build,
             Buildings.ROAD_HOR,
         )
         self.ui.add_button(
             "#btn_road_v_toggle",
             "",
+            "Road north-south",
             self.build,
             Buildings.ROAD_VERT,
         )
-        self.ui.add_button("#btn_destroy_toggle", "", self.destroy)
+        self.ui.add_button("#btn_destroy_toggle", "", "Destroy", self.destroy)
         self.ui.add_button(
             "#btn_quit",
+            "Quit",
             "Quit",
             self.quit,
         )
@@ -119,19 +124,17 @@ class TownGame:
 
             elif event.type == pygame.MOUSEBUTTONUP and self.mode == Modes.BUILD:
                 pos = self._mouse_to_grid(pygame.mouse.get_pos())
-                building = self.building.value
-                if building["cost"] <= self.player.gold:
+                building = self.building.value["class"](
+                    pos,
+                    TILE_SIZE,
+                    ASSET_ROOT,
+                    *self.building.value.get("args", []),
+                    **self.building.value.get("kwargs", {}),
+                )
+                if building.cost <= self.player.gold:
                     # print(f"add_building with pos: {pos}")
-                    if self.world.add_building(
-                        building["class"](
-                            pos,
-                            TILE_SIZE,
-                            ASSET_ROOT,
-                            *building.get("args", []),
-                            **building.get("kwargs", {}),
-                        )
-                    ):
-                        self.player.gold -= building["cost"]
+                    if self.world.add_building(building):
+                        self.player.gold -= building.cost
                         self.ui.update_info(self.info_gold, f"Gold: {self.player.gold}")
             elif event.type == pygame_gui.UI_BUTTON_PRESSED:
                 self.mode = Modes.NONE

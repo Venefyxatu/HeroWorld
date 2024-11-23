@@ -5,6 +5,8 @@ from hero_world.constants import TILE_SIZE, NeighborSlots
 
 
 class Building:
+    cost = 0
+
     def __init__(self, pos, tile_size: int, asset_root: Path) -> None:
         x = pos[0]  # row
         y = pos[1]  # column
@@ -29,16 +31,22 @@ class Building:
 
 
 class WoodCutter(Building):
+    cost = 2
+
     def _load_image(self) -> pygame.surface.Surface:
         return pygame.image.load(self.asset_root / "structures/woodcutter.png")
 
 
 class Forge(Building):
+    cost = 5
+
     def _load_image(self) -> pygame.surface.Surface:
         return pygame.image.load(self.asset_root / "structures/forge.png")
 
 
 class Road(Building):
+    cost = 1
+
     def __init__(self, pos, tile_size: int, asset_root: Path, direction: str) -> None:
         self.direction = direction
         self.intention = direction
