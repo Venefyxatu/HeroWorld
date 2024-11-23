@@ -29,6 +29,7 @@ class Buildings(Enum):
 class Modes(Enum):
     NONE = None
     BUILD = "build"
+    DESTROY = "destroy"
 
 
 class TownGame:
@@ -67,12 +68,19 @@ class TownGame:
             self.build,
             Buildings.ROAD_VERT,
         )
+        self.ui.add_button("#btn_destroy_toggle", "", self.destroy)
         self.ui.add_button(
             "#btn_quit",
             "Quit",
             self.quit,
         )
         self.info_gold = self.ui.add_info("#info_gold", f"Gold: {self.player.gold}")
+
+    def destroy(self):
+        if self.mode != Modes.DESTROY:
+            self.mode = Modes.DESTROY
+        else:
+            self.mode = Modes.NONE
 
     def build(self, building: Buildings):
         if self.mode != Modes.BUILD:
@@ -100,8 +108,11 @@ class TownGame:
             elif event.type == pygame.KEYUP:
                 if event.key in (pygame.K_ESCAPE, pygame.K_q):
                     self.running = False
+            elif event.type == pygame.MOUSEBUTTONUP and self.mode == Modes.DESTROY:
+                pos = self._mouse_to_grid(pygame.mouse.get_pos())
+                self.world.remove_building(pos)
+
             elif event.type == pygame.MOUSEBUTTONUP and self.mode == Modes.BUILD:
-                # pos = pygame.mouse.get_pos()
                 pos = self._mouse_to_grid(pygame.mouse.get_pos())
                 building = self.building.value
                 if building["cost"] <= self.player.gold:

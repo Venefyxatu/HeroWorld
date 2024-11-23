@@ -6,7 +6,6 @@ from hero_world.constants import TILE_SIZE, NeighborSlots
 
 class Building:
     def __init__(self, pos, tile_size: int, asset_root: Path) -> None:
-        # print(f"Building init at pos {pos}")
         x = pos[0]  # row
         y = pos[1]  # column
         self.pos = (x, y)
@@ -38,13 +37,13 @@ class Road(Building):
     def __init__(self, pos, tile_size: int, asset_root: Path, direction: str) -> None:
         self.direction = direction
         self.intention = direction
-        print(f"Road direction: {self.direction}")
         super().__init__(pos, tile_size, asset_root)
 
     def _determine_crossroads(self):
-        print(f"{self}.neighbors = {self.neighbors}")
         if all(self.neighbors.values()):
             self.direction = "4way"
+        elif all(x is False for x in self.neighbors.values()):
+            self.direction = self.intention
         elif self.intention == "vert":
             if (
                 self.neighbors[NeighborSlots.LEFT]
@@ -52,9 +51,9 @@ class Road(Building):
             ):
                 self.direction = "4way"
             elif self.neighbors[NeighborSlots.LEFT]:
-                self.direction = "t_right"
-            elif self.neighbors[NeighborSlots.RIGHT]:
                 self.direction = "t_left"
+            elif self.neighbors[NeighborSlots.RIGHT]:
+                self.direction = "t_right"
         elif self.intention == "hor":
             if (
                 self.neighbors[NeighborSlots.TOP]
@@ -62,13 +61,12 @@ class Road(Building):
             ):
                 self.direction = "4way"
             elif self.neighbors[NeighborSlots.TOP]:
-                self.direction = "t_down"
-            elif self.neighbors[NeighborSlots.BOTTOM]:
                 self.direction = "t_up"
+            elif self.neighbors[NeighborSlots.BOTTOM]:
+                self.direction = "t_down"
 
     def _load_image(self) -> pygame.surface.Surface:
         self._determine_crossroads()
-        print(f"direction at {self.pos} = {self.direction}")
         return pygame.image.load(
             self.asset_root / f"structures/road_{self.direction}.png"
         )

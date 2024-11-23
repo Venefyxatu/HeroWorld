@@ -22,20 +22,15 @@ class World:
         self._create_land()
 
     def _get_neighboring_structures(self, row_index, col_index):
-        # print(
-        #     f"Determining neighboring structures at {row_index}, {col_index} in {self.buildings}"
-        # )
         neighboring_structures = {
             NeighborSlots.TOP: self.buildings.get((row_index - 1, col_index)),
             NeighborSlots.LEFT: self.buildings.get((row_index, col_index - 1)),
             NeighborSlots.RIGHT: self.buildings.get((row_index, col_index + 1)),
             NeighborSlots.BOTTOM: self.buildings.get((row_index + 1, col_index)),
         }
-        # print(f"neighbors: {neighboring_structures}")
         return neighboring_structures
 
     def _get_neighbors(self, row_index, col_index):
-        # print(f"Getting neighbors at row {row_index}, col {col_index}")
         neighbors = {
             NeighborSlots.TOP_LEFT: self.world[row_index - 1][col_index - 1]
             if row_index > 0 and col_index > 0
@@ -78,13 +73,14 @@ class World:
 
     def add_building(self, building: Building) -> bool:
         building_pos = (building.pos[0], building.pos[1])
-        # print(f"Building at {building_pos}")
-        # print(f"Buildings: {self.buildings}")
-        # print(f"Land positions: {self.land_positions}")
         if building_pos not in self.buildings and building_pos in self.land_positions:
             self.buildings[building_pos] = building
             return True
         return False
+
+    def remove_building(self, pos) -> None:
+        if pos in self.buildings:
+            self.buildings.pop(pos)
 
     def draw(self) -> None:
         if DEBUG:
@@ -99,9 +95,9 @@ class World:
             land.draw(self.screen)
         for position, building in self.buildings.items():
             neighbors = self._get_neighboring_structures(position[0], position[1])
-            # print(f"{building} ({building.pos}) neighboring structures: {neighbors}")
             for position, neighbor in neighbors.items():
                 if neighbor:
-                    # print(f"neighbor at position {position}: {neighbor}")
-                    neighbor.neighbors[position] = True
+                    building.neighbors[position] = True
+                else:
+                    building.neighbors[position] = False
             building.draw(self.screen)
